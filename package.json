@@ -1,0 +1,8 @@
+{
+  "name": "email-backend-vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "nylas": "^7.0.0"
+  }
+}
