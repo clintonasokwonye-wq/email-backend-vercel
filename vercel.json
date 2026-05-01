@@ -11,8 +11,5 @@
       "src": "/api/(.*)",
       "dest": "/api/$1"
     }
-  ],
-  "env": {
-    "NYLAS_API_KEY": "@nylas_api_key"
-  }
+  ]
 }
