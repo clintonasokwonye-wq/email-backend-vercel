@@ -14,7 +14,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { to, cc, bcc, subject, body } = req.body;
+    const { email, password, to, cc, bcc, subject, body } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
 
     if (!to || !subject) {
       return res.status(400).json({ error: 'Recipient and subject are required' });
@@ -25,13 +29,13 @@ export default async function handler(req, res) {
       port: 465,
       secure: true,
       auth: {
-        user: process.env.ZOHO_EMAIL,
-        pass: process.env.ZOHO_PASSWORD,
+        user: email,
+        pass: password,
       },
     });
 
     const mailOptions = {
-      from: process.env.ZOHO_EMAIL,
+      from: email,
       to: Array.isArray(to) ? to.join(', ') : to,
       subject: subject,
       html: body || '',
