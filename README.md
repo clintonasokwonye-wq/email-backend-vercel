@@ -1,17 +1,22 @@
-# Zoho Mail Backend
+# Zoho Mail Backend - Multi-Account Support
 
-Simple backend that connects directly to Zoho Mail via IMAP/SMTP.
+Simple backend that connects to Zoho Mail via IMAP/SMTP.
 
-## Environment Variables
+## Features
 
-Set these in Vercel:
-
-- `ZOHO_EMAIL` = info@unicajabanco.sbs
-- `ZOHO_PASSWORD` = kki48YPYwekR
+- ✅ Support for multiple Zoho accounts
+- ✅ No environment variables needed
+- ✅ Credentials passed securely in requests
+- ✅ Works with any Zoho Mail account
 
 ## Endpoints
 
 - GET /api/health - Health check
-- GET /api/emails/list - Fetch emails from Zoho
-- POST /api/emails/send - Send email via Zoho SMTP
-- PATCH /api/emails/update - Update email (star/read status)
+- POST /api/emails/list - Fetch emails (requires email + password in body)
+- POST /api/emails/send - Send email (requires email + password in body)
+- POST /api/emails/update - Update email (requires email + password in body)
+
+## Security
+
+Credentials are passed in request body and NOT stored on server.
+Use HTTPS in production to encrypt credentials in transit.
