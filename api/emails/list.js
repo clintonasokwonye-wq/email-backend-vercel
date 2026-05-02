@@ -1,10 +1,10 @@
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 
-function connectToZoho() {
+function connectToZoho(email, password) {
   return new Imap({
-    user: process.env.ZOHO_EMAIL,
-    password: process.env.ZOHO_PASSWORD,
+    user: email,
+    password: password,
     host: 'imap.zoho.com',
     port: 993,
     tls: true,
@@ -42,7 +42,7 @@ function fetchEmails(imap, limit = 50) {
           let buffer = '';
           let attributes = null;
 
-          msg.on('body', (stream, info) => {
+          msg.on('body', (stream) => {
             stream.on('data', (chunk) => {
               buffer += chunk.toString('utf8');
             });
@@ -80,7 +80,6 @@ function fetchEmails(imap, limit = 50) {
 
         fetch.once('end', () => {
           imap.end();
-          // Sort by date descending (newest first)
           emails.sort((a, b) => b.date - a.date);
           resolve(emails);
         });
@@ -97,20 +96,25 @@ function fetchEmails(imap, limit = 50) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { limit = 50 } = req.query;
-    const imap = connectToZoho();
+    const { email, password, limit = 50 } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const imap = connectToZoho(email, password);
     const messages = await fetchEmails(imap, parseInt(limit));
 
     res.status(200).json({ 
