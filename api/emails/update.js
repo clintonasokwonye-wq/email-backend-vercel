@@ -1,9 +1,9 @@
 import Imap from 'imap';
 
-function connectToZoho() {
+function connectToZoho(email, password) {
   return new Imap({
-    user: process.env.ZOHO_EMAIL,
-    password: process.env.ZOHO_PASSWORD,
+    user: email,
+    password: password,
     host: 'imap.zoho.com',
     port: 993,
     tls: true,
@@ -55,25 +55,29 @@ function updateEmail(imap, messageId, updates) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  if (req.method !== 'PATCH') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { messageId, unread, starred } = req.body;
+    const { email, password, messageId, unread, starred } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
 
     if (!messageId) {
       return res.status(400).json({ error: 'Message ID is required' });
     }
 
-    const imap = connectToZoho();
+    const imap = connectToZoho(email, password);
     await updateEmail(imap, messageId, { unread, starred });
 
     res.status(200).json({ 
